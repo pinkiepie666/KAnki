@@ -9,7 +9,7 @@
 SOURCE_DIR="/mnt/us/documents/kanki"
 TARGET_DIR="/var/local/mesquite/kanki"
 DB="/var/local/appreg.db"
-APP_ID="xyz.kurizu.kanki.scribe"
+APP_ID="xyz.kurizu.kanki"
 
 #Copy To VAR/LOCAL/MESQUITE
 if [ -d "$SOURCE_DIR" ]; then
