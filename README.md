@@ -1,7 +1,15 @@
 # KAnki Scribe
 
-Kindle Scribe 专用的背单词应用，基于开源仓库 [KAnki](https://github.com/crizmo/KAnki)（原作者 Kurizu）二次开发。
-针对 Kindle Scribe 的 **1860×2480 高分辨率墨水屏**进行了适配：词条示例区铺满整卡、单词大号加粗并紧贴顶栏、上一个/下一个控制按钮移到卡片外部、Reset 栏贴底、无滚动条，并加入了新的“上一词”与进度统计。
+Kindle Scribe 专用的考研词汇背单词应用，派生自开源项目 [KAnki](https://github.com/crizmo/KAnki)（原作者 Kurizu），并根据 Kindle Scribe 的 **1860×2480 高分辨率墨水屏**做了针对性适配。
+
+**本项目为独立仓库**，与 KAnki 上游源库不再同步更新，仅保留对原作者的署名与致谢（见 [版权与致谢](#版权与致谢)）。
+
+## 功能亮点
+
+- 单词大号加粗并紧贴顶栏，词条示例区尽量铺满整卡、不会被裁剪。
+- 上一个 / 下一个控制按钮、进度统计、Reset 栏均位于卡片外部，卡片本身无滚动条。
+- 内置"上一词""纠错复习"与进度统计。
+- 专为高分辨率 e-ink 优化视图与分页，避免背景闪烁。
 
 ## 内置词库
 
@@ -46,14 +54,40 @@ Kindle Scribe 专用的背单词应用，基于开源仓库 [KAnki](https://gith
 1. 把 `kanki/js/kanki_config2.js` **重命名为** `kanki_config.js`（覆盖原来的即可）。
 2. 重新打开应用（或点右上角 `⋮` → `Reload`）即可生效。
 
-> 提示：切换会替换当前词库。两套不会同时生效，请先备份不想丢失的词库文件。
+> 提示：切换会替换当前词库，两套不会同时生效。请先备份不想丢失的词库文件。
 
-## 其它开源信息
+## 项目结构
 
-- 本仓库为 **独立分支**，不与上游源库同步更新。
-- 应用运行时进度保存在 Kindle 的 localStorage，重置进度不会影响词库文件。
-- 原始启动脚本（`kanki.sh`）带有对 HackerDude 原始源码的致谢，予以保留。
+```
+kanki.sh             # Kindle 启动脚本
+kanki/               # 应用主体
+  config.xml         # 应用配置（widget id = xyz.kurizu.kanki）
+  index.html         # 主界面
+  main.css           # 布局与样式
+  responsive.css     # 高分辨率屏适配
+  main.js            # 应用逻辑（包含间隔重复预加载等）
+  assets/fonts/      # 字体（language.otf）
+  js/
+    kanki_config.js  # 默认词库
+    kanki_config2.js # 备用词库
+    polyfill.min.js  # ES5 polyfill
+    sdk.js           # Kindle 专用接口
+```
+
+## 数据存储
+
+应用运行进度（每词的学习状态）保存在 Kindle 的 `localStorage`：
+```
+/Kindle/.active_content_sandbox/kanki/resource/LocalStorage/file__0.localstorage
+```
+重置进度不会影响词库文件。
+
+## 版权与致谢
+
+- 本项目派生自 [KAnki](https://github.com/crizmo/KAnki)，原作者 **Kurizu**。
+- `kanki.sh` 保留了原始启动脚本中对 **HackerDude** 原始源码的致谢。
+- 词库数据来自 [Anki](https://ankiweb.net/) 共享牌组（详见上文"内置词库"）。
 
 ## License
 
-本仓库基于 [crizmo/KAnki](https://github.com/crizmo/KAnki) 派生，遵循 MIT 许可证。详见 [LICENSE](LICENSE)。
+本项目基于 [crizmo/KAnki](https://github.com/crizmo/KAnki) 派生，遵循 **MIT** 许可证。详见 [LICENSE](LICENSE)。
