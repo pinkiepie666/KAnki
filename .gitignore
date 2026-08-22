@@ -1,0 +1,13 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
+*.tmp
+*~
+._*
+
+# Node / build
+node_modules/
+.vscode/
+.idea/

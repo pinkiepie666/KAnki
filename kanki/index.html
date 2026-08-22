@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="kindle-display-size" content="width=100%, height=100%, scale-to-fit=yes" />
+  <meta charset="utf-8">
+  <link rel="preload" href="assets/fonts/language.otf" as="font" type="font/otf" crossorigin="anonymous">
+  <link rel="preload" href="assets/fonts/language.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <script src="js/polyfill.min.js"></script>
+  <script src="js/sdk.js"></script>
+  <script src="js/kanki_config.js"></script>
+  <script src="main.js"></script>
+  <link href="main.css" rel="stylesheet">
+  <link href="responsive.css" rel="stylesheet">
+  <title>KAnki</title>
+  <script>
+    function update() {
+      var chromebar = {
+        "appId": "xyz.kurizu.kanki.scribe",
+        "topNavBar": {
+          "template": "title",
+          "title": "KAnki",
+          "buttons": [
+            {
+              "id": "KPP_MORE",
+              "state": "enabled",
+              "handling": "system"
+            },
+            {
+              "id": "KPP_CLOSE",
+              "state": "enabled",
+              "handling": "system"
+            }
+          ],
+        },
+        "systemMenu": {
+          "clientParams": {
+            "profile": {
+              "name": "default",
+              "items": [
+                {
+                  "id": "KANKI_RELOAD",
+                  "state": "enabled",
+                  "handling": "notifyApp",
+                  "label": "Reload",
+                  "position": 0
+                }
+              ],
+              "selectionMode": "none",
+              "closeOnUse": true
+            }
+          }
+        }
+      };
+      window.kindle.messaging.sendMessage("com.lab126.chromebar", "configureChrome", chromebar);
+    };
+
+    window.kindle.appmgr.ongo = function (ctx) {
+      update();
+      window.kindle.messaging.receiveMessage("systemMenuItemSelected", function (type, id) {
+        switch (id) {
+          case "KANKI_RELOAD":
+            window.location.reload();
+        };
+      });
+    };
+  </script>
+</head>
+
+<body onload="onPageLoad()">
+  <div id="log" style="display:none;"></div>
+
+  <div id="headerBar">
+    <div class="topBar">
+      <div class="logoArea">
+        <h1 id="title">KAnki</h1>
+      </div>
+      <div class="infoArea">
+        <div id="progressDisplay" class="progressBar"></div>
+        <div id="levelDisplay" class="levelDisplay"></div>
+      </div>
+    </div>
+    <div class="menuBar">
+      <div id="levelButtons" class="menuSection">
+        <button onclick="changeLevel('all')">All Levels</button>
+        <!-- Other level buttons will be added dynamically by JavaScript -->
+      </div>
+      <div class="menuDivider"></div>
+      <div id="toolButtons" class="menuSection">
+        <button id="prevCardBtn" onclick="goToPreviousCard()">◀ 上一词</button>
+        <button id="starredFilterBtn" onclick="toggleStarredFilter()">★ Star</button>
+        <button id="reverseToggleBtn" onclick="toggleCardDirection()">↔ Flip</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainContainer">
+    <div id="statusMessage" style="display: none;"></div>
+
+    <!-- Fixed card structure to prevent DOM rebuilding -->
+    <div id="cardContainer" class="card">
+      <div id="levelBadge" class="levelBadge"></div>
+      <!-- Top section: star + word+phonetic (left), translation (right) -->
+      <div id="cardTop" class="cardTop">
+        <button id="starButton" class="starButton" onclick="toggleStarCurrentCard()">☆</button>
+        <div id="cardFront" class="cardFront"></div>
+        <div id="cardBack" class="cardBack"></div>
+      </div>
+      <!-- Notes section: examples, paged -->
+      <div id="cardNotes" class="cardNotes"></div>
+    </div>
+
+    <!-- Page pager: OUTSIDE the card, never clipped -->
+    <div id="notesPager" class="notesPager">
+      <button id="notesPrevBtn" class="pagerBtn" onclick="turnNotesPage(-1)">◀</button>
+      <span id="notesPageIndicator" class="notesPageIndicator">1/1</span>
+      <button id="notesNextBtn" class="pagerBtn" onclick="turnNotesPage(1)">▶</button>
+    </div>
+
+    <!-- Card statistics: OUTSIDE the card -->
+    <div id="cardStats" class="cardStats"></div>
+
+    <div id="controlButtons" class="buttonContainer">
+      <button id="showAnswerBtn" onclick="showAnswer()">Show Answer</button>
+      <div id="intervalButtons" style="display: none;">
+        <button class="intervalBtn againBtn" onclick="handleAnswerWithInterval('again')">Again<br>&lt;10m</button>
+        <button class="intervalBtn hardBtn" onclick="handleAnswerWithInterval('hard')">Hard<br>1d</button>
+        <button class="intervalBtn goodBtn" onclick="handleAnswerWithInterval('good')">Good<br>3d</button>
+        <button class="intervalBtn easyBtn" onclick="handleAnswerWithInterval('easy')">Easy<br>7d</button>
+      </div>
+    </div>
+
+    <!-- Reset row: pinned to the bottom -->
+    <div id="resetRow" class="buttonContainer">
+      <button onclick="showResetProgressConfirm()">Reset Progress</button>
+      <button onclick="showResetAllConfirm()">Reset All Data</button>
+    </div>
+  </div>
+
+  <!-- Confirmation popup overlay (hidden by default) -->
+  <div id="confirmationOverlay" class="overlay" style="display: none;">
+    <div class="popup">
+      <div id="confirmationMessage" class="popup-message"></div>
+      <div class="popup-buttons">
+        <button id="confirmYesBtn" class="confirmBtn">Yes</button>
+        <button id="confirmNoBtn" class="cancelBtn">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification (hidden by default) -->
+  <div id="toastNotification" class="toast-notification" style="display: none;"></div>
+
+  <div class="footer">
+    <p>v1.1.2</p>
+  </div>
+</body>
+
+</html>

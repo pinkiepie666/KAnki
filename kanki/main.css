@@ -1,0 +1,569 @@
+@font-face {
+  font-family: 'LanguageFont';
+  /* OTF preferred if present (assets/fonts/language.otf), TTF as fallback */
+  src: url('assets/fonts/language.otf') format('opentype'),
+       url('assets/fonts/language.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #f5f5f5;
+  filter: grayscale(1);
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.progressBar {
+  display: block;
+  margin: 0 0 3px 0;
+  font-weight: bold;
+}
+
+.levelDisplay {
+  display: block;
+  margin: 3px 0 0 0;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #444;
+}
+
+.buttonContainer {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.buttonContainer button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #000;
+}
+
+/* Title and header styles */
+#headerBar {
+  margin: 0 0 15px 0;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+  background-color: #f0f0f0;
+}
+
+/* Top bar with logo and info */
+.topBar {
+  width: 100%;
+  display: table;
+  table-layout: fixed;
+  border-spacing: 0;
+  padding: 5px 10px;
+  background-color: #eaeaea;
+}
+
+.logoArea {
+  display: table-cell;
+  width: 25%;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.infoArea {
+  display: table-cell;
+  width: 75%;
+  text-align: right;
+  vertical-align: middle;
+  padding-right: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#title {
+  margin: 0;
+  padding: 5px 0;
+  font-size: 1.6em;
+}
+
+/* Menu bar styles - using table-based layout for Kindle compatibility */
+.menuBar {
+  width: 98%;
+  margin: 0 auto;
+  padding: 5px 0;
+  text-align: center;
+  display: table;
+  table-layout: fixed;
+  border-spacing: 0;
+  border-top: 1px solid #ddd;
+}
+
+.menuSection {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.menuDivider {
+  display: table-cell;
+  width: 10px;
+}
+
+#levelButtons {
+  text-align: center;
+  margin: 5px 0;
+}
+
+#levelButtons button, #toolButtons button {
+  margin: 2px;
+  padding: 5px 7px;
+  border: 1px solid #000;
+  background-color: #fff;
+  font-size: 0.9em;
+}
+
+#levelButtons button:active, #toolButtons button:active,
+#levelButtons button.active, #toolButtons button.active {
+  background-color: #ccc;
+}
+
+/* Status bar with progress display */
+.statusBar {
+  padding: 5px 0;
+  text-align: center;
+  border-top: 1px solid #ddd;
+}
+
+.card {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 80%;
+  position: relative;
+  height: 300px; /* Fixed height instead of min-height */
+  overflow-y: hidden; /* Card itself does not scroll; notes area pages */
+  overflow-x: hidden; /* Prevent horizontal overflow */
+  border: 1px solid #000000;
+  /* box-sizing: border-box: the JS-set height is the TOTAL height, so the
+     card never renders taller than planned (no clipped lines). */
+  box-sizing: border-box;
+  /* Ensure text wrapping for all content */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  /* No flexbox: old Kindle WebKit handles it unreliably. The notes area gets
+     an explicit height from JS (sizeNotesArea). */
+  scroll-behavior: auto;
+  scrollbar-width: thin; /* Thinner scrollbar for better aesthetics */
+  scrollbar-color: #888 #f1f1f1; /* Custom scrollbar colors */
+}
+
+.levelBadge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #4285f4;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 0.8em;
+  z-index: 3;
+}
+
+/* Top section: star + word+phonetic on the left, translation on the right.
+   Uses -webkit-box (old WebKit flexbox) for Kindle compatibility. */
+.cardTop {
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-align: center;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
+.starButton {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  -webkit-box-flex: 0;
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 5px;
+  line-height: 1;
+}
+
+.starButton.starred {
+  color: #555;
+}
+
+.cardFront {
+  -webkit-box-flex: 0;
+  width: 45%;
+  flex: 0 0 45%;
+  font-size: 1.8em; /* word: example size (0.9em) + 3 steps */
+  font-weight: bold; /* the word itself is bold */
+  font-family: 'LanguageFont', sans-serif;
+  min-height: 60px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.cardFront small {
+  display: block;
+  font-size: 0.4em; /* phonetic: smaller than the word, same gray */
+  font-weight: normal;
+  color: #666;
+  margin-top: 2px; /* snug right under the word */
+  line-height: 1.2;
+}
+
+.cardBack {
+  -webkit-box-flex: 1;
+  flex: 1;
+  font-size: 1.1em; /* translation: slightly smaller than the word */
+  padding-left: 15px;
+  min-height: 50px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  white-space: pre-line; /* Respect newlines in the back field */
+}
+
+/* Notes section: examples, paged. Height is set explicitly by JS
+   (sizeNotesArea) so the pager below (outside the card) is never clipped. */
+.cardNotes {
+  display: block;
+  box-sizing: border-box;
+  overflow-y: hidden; /* no scrolling - pages instead */
+  overflow-x: hidden;
+  font-size: 1em; /* examples */
+  line-height: 1.55; /* must match the measurer in buildNotesPages */
+  color: #000;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  white-space: pre-line; /* Respect newlines in the notes field */
+  border-top: 1px dashed #ccc;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+/* Page pager: ◀ page ▶ - lives OUTSIDE the card, never clipped */
+.notesPager {
+  text-align: center;
+  margin: 6px auto 2px auto;
+  padding: 2px 0;
+}
+
+.notesPager .pagerBtn {
+  display: inline-block;
+  min-width: 110px;   /* wider touch area */
+  min-height: 48px;   /* comfortable tap height */
+  padding: 12px 24px;
+  margin: 0 14px;
+  font-size: 1.4em;
+  border: 1px solid #000;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+}
+
+.notesPager .pagerBtn:disabled {
+  opacity: 0.35;
+}
+
+.notesPageIndicator {
+  display: inline-block;
+  font-size: 1.2em;
+  color: #000;
+  padding: 0 10px;
+  vertical-align: middle;
+}
+
+/* Card statistics styling */
+.cardStats {
+  font-size: 0.7em;
+  color: #888;
+  text-align: right;
+  margin-top: 15px;
+  padding-top: 5px;
+  position: relative;
+  font-style: italic;
+}
+
+/* Add a subtle dashed separator that fades at the edges */
+.cardStats::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 20%;
+  right: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, transparent, rgba(238,238,238,0.8) 10%, transparent 10%, rgba(238,238,238,0.8) 20%, transparent 20%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+
+/* Custom scrollbar styling for better visibility */
+.card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.card::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Scroll indicators - subtle visual cues for scrollable content */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 2;
+  display: none; /* Hidden by default */
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 2;
+  display: none; /* Hidden by default */
+}
+
+/* Show scroll indicators when content is scrollable AND scrolled */
+.card.scrollable-top::before {
+  display: block;
+  opacity: 1;
+}
+
+.card.scrollable-bottom::after {
+  display: block;
+  opacity: 1;
+}
+
+/* Enhanced focus states for better keyboard navigation visibility */
+.card:focus {
+  outline: 2px solid #4285f4;
+  outline-offset: 2px;
+}
+
+/* Add a subtle animation when scrolling programmatically */
+.card.smooth-scroll {
+  scroll-behavior: auto; /* instant - smooth is too slow on e-ink */
+}
+
+#showAnswerBtn {
+  padding: 12px 25px;
+  margin: 8px auto;
+  font-size: 1.1em;
+  cursor: pointer;
+  border: 1px solid #000;
+  min-width: 80%; /* Make show answer button wider to match interval buttons container width */
+  display: block; /* Make it block to center it properly */
+}
+
+.correctBtn {
+  background-color: #555555; 
+  color: white;
+}
+
+.incorrectBtn {
+  background-color: #222222; 
+  color: white;
+}
+
+#statusMessage {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 15px auto;
+  max-width: 80%;
+  text-align: center;
+  word-wrap: break-word; /* Break long words */
+  overflow-wrap: break-word; /* Modern alternative to word-wrap */
+  hyphens: auto; /* Add hyphenation for better text wrapping */
+  font-size: 1.2em; /* Make status messages appropriately sized */
+}
+
+#controlButtons {
+  height: 100px; /* Reduced height since interval buttons will be in same location as show answer */
+  position: relative;
+  margin: 20px 0 20px 0; /* Reduced bottom margin */
+  text-align: center;
+  overflow: visible; /* Allow content to be visible instead of hidden */
+}
+
+#intervalButtons {
+  text-align: center;
+  position: absolute;
+  top: 0; /* Positioned at top to overlay with show answer button position */
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: auto; /* Allow natural height based on content */
+}
+
+.intervalBtn {
+  padding: 8px 12px; /* Slightly reduced padding */
+  margin: 0 5px; /* Reduced margins to fit all buttons better */
+  font-size: 0.95em;
+  cursor: pointer;
+  border: 1px solid #000;
+  min-width: 60px; /* Slightly narrower buttons */
+  display: inline-block;
+}
+
+.againBtn {
+  background-color: #222222;
+  color: white;
+  font-weight: bold; /* Make 'Again' button more prominent */
+  border-width: 2px; /* Make border thicker for emphasis */
+  min-width: 75px; /* Make slightly wider than other interval buttons */
+}
+
+.hardBtn {
+  background-color: #444444; 
+  color: white;
+}
+
+.goodBtn {
+  background-color: #666666; 
+  color: white;
+}
+
+.easyBtn {
+  background-color: #888888;
+  color: white;
+}
+
+/* Overlay for confirmation popup */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 100;
+}
+
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Using negative margins to center for better compatibility */
+  margin-top: -100px; 
+  margin-left: -140px;
+  background-color: #ffffff;
+  color: #000000;
+  padding: 20px;
+  border-radius: 5px;
+  border: 2px solid #333;
+  width: 240px;
+  z-index: 101;
+  text-align: center;
+  opacity: 1;
+}
+
+.popup-message {
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  line-height: 1.4;
+  word-wrap: break-word;
+  color: #000000;
+}
+
+.popup-buttons {
+  width: 100%;
+  text-align: center;
+  margin: 10px auto 0;
+}
+
+.popup-buttons button {
+  display: inline-block;
+  width: 80px;
+  margin: 0 10px;
+  padding: 8px 0;
+  color: #ffffff;
+  border: 1px solid #000;
+}
+
+.confirmBtn {
+  background-color: #333333; 
+  color: #ffffff;
+  border: 1px solid #000;
+  padding: 8px 15px;
+}
+
+.cancelBtn {
+  background-color: #666666;
+  color: #ffffff;
+  border: 1px solid #000;
+  padding: 8px 15px;
+}
+
+.footer {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+.toast-notification {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  width: 240px;
+  margin-left: -120px;
+  background-color: #000000;
+  color: white;
+  padding: 10px 0;
+  border-radius: 5px;
+  z-index: 200;
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid #333;
+}
+
+#starredFilterBtn.active {
+  background-color: #555;
+  color: white;
+}
+
+#reverseToggleBtn.active {
+  background-color: #555;
+  color: white;
+}
